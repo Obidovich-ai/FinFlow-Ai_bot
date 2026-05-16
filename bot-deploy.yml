@@ -1,0 +1,39 @@
+[bot-deploy.yml.txt](https://github.com/user-attachments/files/27850882/bot-deploy.yml.txt)
+name: Run Telegram Bot
+    on:
+      push:
+        branches: [ main ]
+    jobs:
+      run-bot:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+          - name: Set up Python
+            uses: actions/setup-python@v4
+            with:
+              python-version: '3.10'
+          - name: Install dependencies
+            run: |
+              cd bot
+              pip install -r requirements.txt
+          - name: Start Bot
+            run: |
+              cd bot
+              python main.py
+            env:
+              API_TOKEN: ${{ secrets.BOT_TOKEN }}
+    ```
+
+---
+
+### 5-bosqich: Xavfsizlik (Secrets)
+
+Tokeningizni hamma ko'rmasligi uchun:
+1.  GitHub sahifangizda **Settings > Secrets and variables > Actions** bo'limiga kiring.
+2.  **New repository secret** tugmasini bosing.
+3.  Nomiga `BOT_TOKEN`, qiymatiga esa BotFather bergan tokenni qo'ying.
+
+### 🏁 Yakun
+Endi siz GitHub'ga har safar kod yuborganingizda (Commit), GitHub serveri siz uchun botni avtomatik ishga tushiradi. Sizda **tekin va doimiy ishlaydigan bot** paydo bo'ladi!
+
+**Hozir birinchi bo'lib `main.py` ni yaratib, commit qila olasizmi?** Qayerda to'xtab qolsangiz, ayting, darrov tushuntiraman.
