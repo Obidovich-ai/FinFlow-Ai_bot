@@ -1,0 +1,73 @@
+FROM python:3.10-slim
+    WORKDIR /app
+    COPY . .
+    RUN pip install -r requirements.txt
+    CMD ["python", "main.py"]
+    ```
+
+---
+
+### 3-bosqich: Botning "Miyasi"ni yozish (`bot/main.py`)
+
+GitHub muharririda `bot/main.py` faylini oching va quyidagi mukammal kodni joylang (bu kodda foydalanuvchini tanish va menyular bilan ishlash mantiqi bor):
+
+```python
+import asyncio
+import logging
+from aiogram import Bot, Dispatcher, types, F
+from aiogram.filters import Command
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
+
+# --- SOZLAMALAR ---
+TOKEN = "SIZNING_BOT_TOKENINGIZ" # BotFather'dan olgan tokeningizni qo'ying
+logging.basicConfig(level=logging.INFO)
+
+bot = Bot(token=TOKEN)
+dp = Dispatcher()
+
+# --- TUGMALAR ---
+def get_main_keyboard():
+    builder = ReplyKeyboardBuilder()
+    builder.add(types.KeyboardButton(text="💸 Xarajat qo'shish"))
+    builder.add(types.KeyboardButton(text="💰 Balansni ko'rish"))
+    builder.add(types.KeyboardButton(text="📊 AI Tahlil"))
+    builder.add(types.KeyboardButton(text="⚙️ Sozlamalar"))
+    builder.adjust(2) # Tugmalarni 2 qatordan chiqarish
+    return builder.as_markup(resize_keyboard=True)
+
+# --- COMMAND HANDLERS ---
+@dp.message(Command("start"))
+async def cmd_start(message: types.Message):
+    await message.answer(
+        f"Salom, {message.from_user.first_name}! 🚀\nFinFlow AI botiga xush kelibsiz.\n"
+        "Men sizga xarajatlarni boshqarishda yordam beraman.",
+        reply_markup=get_main_keyboard()
+    )
+
+@dp.message(F.text == "💰 Balansni ko'rish")
+async def show_balance(message: types.Message):
+    # Bu yerda kelajakda bazadan ma'lumot olamiz
+    await message.answer("Sizning hisobingiz: <b>0.00 UZS</b>", parse_mode="HTML")
+
+@dp.message(F.text == "📊 AI Tahlil")
+async def ai_analysis(message: types.Message):
+    await message.answer("🤖 AI ma'lumotlarni tahlil qilmoqda... Kuting.")
+    await asyncio.sleep(2) # Kutish effektini berish
+    await message.answer("Siz o'tgan haftaga qaraganda 15% ko'proq tushlikka xarajat qildingiz. Tejamkor bo'lishni maslahat beraman!")
+
+# --- XARAJATLARNI QABUL QILISH ---
+@dp.message()
+async def handle_text(message: types.Message):
+    # Oddiy mantiq: "tushlik 50000" formatini tekshirish
+    parts = message.text.split()
+    if len(parts) == 2 and parts[1].isdigit():
+        item, amount = parts[0], parts[1]
+        await message.answer(f"✅ Saqlandi!\nKategoriya: {item}\nSumma: {amount} so'm")
+    else:
+        await message.answer("Xarajatni mana bu formatda yozing: <i>ovqat 25000</i>", parse_mode="HTML")
+
+async def main():
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
